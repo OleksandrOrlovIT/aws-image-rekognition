@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import {Box, Button, InputLabel, TextField, Typography} from '@mui/material';
+import config from "../config";
 
 const ImageGallery = () => {
     const [filterWord, setFilterWord] = useState('');
     const [images, setImages] = useState([]);
-    const apiUrl = process.env.REACT_APP_API_URL;
-    console.log(apiUrl);
+    const apiUrl = config.API_URL;
 
     const handleFilterChange = (e) => {
         setFilterWord(e.target.value);

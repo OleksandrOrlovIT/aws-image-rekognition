@@ -3,7 +3,7 @@ docker build -t aws-image-frontend .
 docker save -o aws-image-frontend.tar aws-image-frontend
 
 # Run the container with AWS environment variables
-docker run -d --name aws-image-frontend-container -p 3000:80 --env-file .env aws-image-frontend
+docker run -d --name aws-image-frontend-container -p 3000:80 -e REACT_APP_API_URL="" aws-image-frontend
 
 aws s3 cp aws-image-frontend.tar s3://orlovoleksandrs3/aws-image-tars/
 

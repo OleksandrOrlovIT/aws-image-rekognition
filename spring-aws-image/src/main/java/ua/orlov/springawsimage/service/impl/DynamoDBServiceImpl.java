@@ -17,52 +17,48 @@ public class DynamoDBServiceImpl implements DynamoDBService {
 
     private static final Logger logger = LoggerFactory.getLogger(DynamoDBService.class);
 
-    @Value("${dynamodb.table.name}")
-    private String DYNAMODB_TABLE_NAME;
+    private final DynamoDbClient dynamoDbClient;
+
+    private final String dynamodbTableName;
+
+    public DynamoDBServiceImpl(DynamoDbClient dynamoDbClient, @Value("${dynamodb.table.name}") String dynamodbTableName) {
+        this.dynamoDbClient = dynamoDbClient;
+        this.dynamodbTableName = dynamodbTableName;
+    }
 
     @Override
     public void saveImageLabels(String s3Key, List<String> labels) {
-        try (DynamoDbClient dynamoDbClient = DynamoDbClient.builder().build()){
-            dynamoDbClient.putItem(PutItemRequest.builder()
-                    .tableName(DYNAMODB_TABLE_NAME)
-                    .item(Map.of(
-                            "id", AttributeValue.builder().s(UUID.randomUUID().toString()).build(),
-                            "s3key", AttributeValue.builder().s(s3Key).build(),
-                            "labels", AttributeValue.builder().ss(labels).build()
-                    ))
-                    .build());
+        dynamoDbClient.putItem(PutItemRequest.builder()
+                .tableName(dynamodbTableName)
+                .item(Map.of(
+                        "id", AttributeValue.builder().s(UUID.randomUUID().toString()).build(),
+                        "s3key", AttributeValue.builder().s(s3Key).build(),
+                        "labels", AttributeValue.builder().ss(labels).build()
+                ))
+                .build());
 
-            logger.info("Image labels saved to DynamoDB for {}", s3Key);
+        logger.info("Image labels saved to DynamoDB for {}", s3Key);
 
-        } catch (DynamoDbException e) {
-            logger.error("Failed to save labels to DynamoDB: {}", e.getMessage());
-            throw new RuntimeException("Error saving image labels", e);
-        }
     }
 
     @Override
     public List<String> getImageUrlsByFilterTag(String filterTag) {
-        try (DynamoDbClient dynamoDbClient = DynamoDbClient.builder().build()){
-            ScanRequest scanRequest = ScanRequest.builder()
-                    .tableName(DYNAMODB_TABLE_NAME)
-                    .filterExpression("contains(labels, :filterTag)")
-                    .expressionAttributeValues(Map.of(
-                            ":filterTag", AttributeValue.builder().s(filterTag).build()
-                    ))
-                    .build();
+        ScanRequest scanRequest = ScanRequest.builder()
+                .tableName(dynamodbTableName)
+                .filterExpression("contains(labels, :filterTag)")
+                .expressionAttributeValues(Map.of(
+                        ":filterTag", AttributeValue.builder().s(filterTag).build()
+                ))
+                .build();
 
-            ScanResponse scanResponse = dynamoDbClient.scan(scanRequest);
+        ScanResponse scanResponse = dynamoDbClient.scan(scanRequest);
 
-            List<String> s3Objects = scanResponse.items().stream()
-                    .map(item -> item.get("s3key").s())
-                    .toList();
+        List<String> s3Objects = scanResponse.items().stream()
+                .map(item -> item.get("s3key").s())
+                .toList();
 
-            logger.info("S3 objects retrieved by filter {} , {}", filterTag, s3Objects);
+        logger.info("S3 objects retrieved by filter {} , {}", filterTag, s3Objects);
 
-            return s3Objects;
-        } catch (DynamoDbException e) {
-            logger.error("Failed to query DynamoDB: {}", e.getMessage());
-            throw new RuntimeException("Error retrieving image URLs", e);
-        }
+        return s3Objects;
     }
 }

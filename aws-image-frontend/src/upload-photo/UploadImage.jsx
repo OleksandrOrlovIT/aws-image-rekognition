@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Button, Box, InputLabel, Input } from "@mui/material";
+import config from "../config";
 
 const UploadImage = () => {
     const [file, setFile] = useState(null);
-    const apiUrl = process.env.REACT_APP_API_URL;
+    const apiUrl = config.API_URL;
 
     const handleFileChange = (event) => {
         setFile(event.target.files[0]);
