@@ -3,6 +3,7 @@ package ua.orlov.springawsimage.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.ResponseInputStream;
@@ -19,7 +20,9 @@ import java.util.*;
 public class S3ServiceImpl implements S3Service {
 
     private static final Logger logger = LoggerFactory.getLogger(S3ServiceImpl.class);
-    private static final String BUCKET_NAME = "orlov-image-bucket";
+
+    @Value("${s3.bucket.name}")
+    private String BUCKET_NAME;
 
     public String loadImageToS3Bucket(MultipartFile img) {
         try (S3Client s3Client = S3Client.builder().build()) {

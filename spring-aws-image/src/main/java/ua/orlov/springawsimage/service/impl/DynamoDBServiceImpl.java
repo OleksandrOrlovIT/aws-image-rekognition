@@ -2,6 +2,7 @@ package ua.orlov.springawsimage.service.impl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
@@ -15,14 +16,15 @@ import java.util.UUID;
 public class DynamoDBServiceImpl implements DynamoDBService {
 
     private static final Logger logger = LoggerFactory.getLogger(DynamoDBService.class);
-    //TODO change to get from properties
-    private final String TABLE_NAME = "ImageLabels";
+
+    @Value("${dynamodb.table.name}")
+    private String DYNAMODB_TABLE_NAME;
 
     @Override
     public void saveImageLabels(String s3Key, List<String> labels) {
         try (DynamoDbClient dynamoDbClient = DynamoDbClient.builder().build()){
             dynamoDbClient.putItem(PutItemRequest.builder()
-                    .tableName(TABLE_NAME)
+                    .tableName(DYNAMODB_TABLE_NAME)
                     .item(Map.of(
                             "id", AttributeValue.builder().s(UUID.randomUUID().toString()).build(),
                             "s3key", AttributeValue.builder().s(s3Key).build(),
@@ -42,7 +44,7 @@ public class DynamoDBServiceImpl implements DynamoDBService {
     public List<String> getImageUrlsByFilterTag(String filterTag) {
         try (DynamoDbClient dynamoDbClient = DynamoDbClient.builder().build()){
             ScanRequest scanRequest = ScanRequest.builder()
-                    .tableName(TABLE_NAME)
+                    .tableName(DYNAMODB_TABLE_NAME)
                     .filterExpression("contains(labels, :filterTag)")
                     .expressionAttributeValues(Map.of(
                             ":filterTag", AttributeValue.builder().s(filterTag).build()

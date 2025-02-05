@@ -3,6 +3,7 @@ import { Button, Box, InputLabel, Input } from "@mui/material";
 
 const UploadImage = () => {
     const [file, setFile] = useState(null);
+    const apiUrl = process.env.REACT_APP_API_URL;
 
     const handleFileChange = (event) => {
         setFile(event.target.files[0]);
@@ -18,7 +19,7 @@ const UploadImage = () => {
         formData.append("image", file);
 
         try {
-            const response = await fetch("http://localhost:8080/api/v1/uploadImage", {
+            const response = await fetch(`${apiUrl}/api/v1/uploadImage`, {
                 method: "POST",
                 body: formData,
             });

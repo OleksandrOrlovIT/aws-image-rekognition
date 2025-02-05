@@ -5,6 +5,8 @@ import {Box, Button, InputLabel, TextField, Typography} from '@mui/material';
 const ImageGallery = () => {
     const [filterWord, setFilterWord] = useState('');
     const [images, setImages] = useState([]);
+    const apiUrl = process.env.REACT_APP_API_URL;
+    console.log(apiUrl);
 
     const handleFilterChange = (e) => {
         setFilterWord(e.target.value);
@@ -12,7 +14,7 @@ const ImageGallery = () => {
 
     const fetchImages = async () => {
         try {
-            const response = await axios.get('http://localhost:8080/api/v1/get-by-filter', {
+            const response = await axios.get(`${apiUrl}/api/v1/get-by-filter`, {
                 params: { filterWord }
             });
 

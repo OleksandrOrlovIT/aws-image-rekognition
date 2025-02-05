@@ -2,6 +2,7 @@ package ua.orlov.springawsimage.service.impl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.rekognition.RekognitionClient;
@@ -14,15 +15,15 @@ import java.util.stream.Collectors;
 @Service
 public class RekognitionServiceImpl implements RekognitionService {
 
-    //TODO Get from the properties file
-    private static final String BUCKET_NAME = "orlov-image-bucket";
     private static final Logger logger = LoggerFactory.getLogger(RekognitionService.class);
+
+    @Value("${s3.bucket.name}")
+    private String BUCKET_NAME;
 
     @Override
     public List<String> analyzeImageLabels(String imageKey) {
         try {
-            RekognitionClient rekognitionClient = RekognitionClient.builder()
-                    .build();
+            RekognitionClient rekognitionClient = RekognitionClient.builder().build();
 
             DetectLabelsRequest request = DetectLabelsRequest.builder()
                     .image(Image.builder()
